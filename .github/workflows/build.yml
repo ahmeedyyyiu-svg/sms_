@@ -7,16 +7,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Debug - List Files
-        run: ls -R
-        
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
+        # نستخدم هذا المسار المكتشف بناءً على نجاح العملية السابقة
         run: |
-          # سيقوم بالدخول لأي مجلد يحتوي على package.json تلقائياً
-          cd $(find . -name "package.json" -exec dirname {} \; | head -n 1)
+          cd Hhhh
           npm install
+
+      - name: Build Android APK
+        run: |
+          cd Hhhh
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+        
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: Hhhh/android/app/build/outputs/apk/debug/app-debug.apk
