@@ -13,10 +13,14 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        # نستخدم هذا المسار المكتشف بناءً على نجاح العملية السابقة
-        run: |
-          cd Hhhh
-          npm install
+        run: npm install
+        working-directory: Hhhh
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
       - name: Build Android APK
         run: |
@@ -24,7 +28,7 @@ jobs:
           npx cap sync android
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleDebug
         
       - name: Upload APK
         uses: actions/upload-artifact@v4
