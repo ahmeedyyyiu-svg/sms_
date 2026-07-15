@@ -12,13 +12,12 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        # البحث عن ملف package.json والعمل من مجلده مباشرة
         run: |
           DIR=$(find . -name "package.json" -exec dirname {} \; | head -n 1)
           cd $DIR
           npm install
-          npm run build
-
+          # تم إزالة npm run build مؤقتاً هنا
+        
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -29,17 +28,12 @@ jobs:
         run: |
           DIR=$(find . -name "package.json" -exec dirname {} \; | head -n 1)
           cd $DIR
-          # التأكد من وجود مجلد android والقيام بالبناء
-          if [ -d "android" ]; then
-            cd android
-            ./gradlew assembleRelease
-          else
-            echo "Android folder not found!"
-            exit 1
-          fi
+          # نقوم بمزامنة كاباسيتور مباشرة
+          npx cap sync android
+          cd android
+          ./gradlew assembleRelease
 
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          # البحث عن ملف APK في أي مكان داخل المستودع
           path: '**/build/outputs/apk/release/*.apk'
