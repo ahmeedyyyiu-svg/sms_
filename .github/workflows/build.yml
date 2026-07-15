@@ -13,10 +13,8 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        # سنقوم بالبحث عن المجلد ديناميكياً لضمان الدخول الصحيح
-        run: |
-          cd $(find . -maxdepth 2 -type d -name "Hhhh")
-          npm install
+        run: npm install
+        working-directory: ./Hhhh
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -26,7 +24,7 @@ jobs:
 
       - name: Build Android APK
         run: |
-          cd $(find . -maxdepth 2 -type d -name "Hhhh")
+          cd Hhhh
           npx cap sync android
           cd android
           chmod +x gradlew
@@ -36,4 +34,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: **/build/outputs/apk/debug/app-debug.apk
+          path: Hhhh/android/app/build/outputs/apk/debug/app-debug.apk
