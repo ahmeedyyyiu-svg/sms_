@@ -1,50 +1,38 @@
-name: Build Flutter APK
+name: Build Android App
 on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.x'
       
-      # هذا الأمر سيبحث عن ملف pubspec.yaml في أي مكان داخل المستودع ويبدأ البناء منه
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Install dependencies
+        run: npm install
+        working-directory: ./Hhhh
+
+      - name: Build Web Assets
+        run: npm run build
+        working-directory: ./Hhhh
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build Android APK
         run: |
-          find . -name "pubspec.yaml" -exec dirname {} \; | xargs -I {} sh -c 'cd {} && flutter pub get'
-        
-      - name: Build APK
-        run: |
-          # Find a pubspec directory that looks like a Flutter app (has android/ and lib/main.dart)
-          PROJECT_DIR=""
-          for d in $(find . -name "pubspec.yaml" -exec dirname {} \;); do
-            if [ -d "$d/android" ] && [ -f "$d/lib/main.dart" ]; then
-              PROJECT_DIR="$d"
-              break
-            fi
-          done
+          cd Hhhh
+          npx cap sync android
+          cd android
+          ./gradlew assembleRelease
 
-          # Fallback: use the first pubspec directory if no app directory matched
-          if [ -z "$PROJECT_DIR" ]; then
-            PROJECT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-            echo "No project dir with android/lib/main.dart found; falling back to first pubspec dir: $PROJECT_DIR"
-          else
-            echo "Selected Flutter project dir: $PROJECT_DIR"
-          fi
-
-          cd "$PROJECT_DIR"
-          echo "Working directory: $(pwd)"
-          echo "Listing top-level files:"
-          ls -la
-
-          # If your entrypoint is not lib/main.dart, set --target explicitly:
-          # flutter build apk --release --target=lib/your_entry.dart
-          flutter build apk --release
-        
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: |
-            **/build/app/outputs/flutter-apk/app-release.apk
-            **/build/app/outputs/flutter-apk/*.apk
+          path: Hhhh/android/app/build/outputs/apk/release/app-release-unsigned.apk
