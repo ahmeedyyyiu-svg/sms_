@@ -8,9 +8,19 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.x'
-      - run: flutter pub get
-      - run: flutter build apk --release
+      
+      # هذا السطر يخبر GitHub أن يدخل لمجلد Hhhh أولاً
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: ./Hhhh
+        
+      # هذا السطر يقوم ببناء الـ APK من داخل مجلد Hhhh
+      - name: Build APK
+        run: flutter build apk --release
+        working-directory: ./Hhhh
+        
+      # هذا السطر يرفع الملف الناتج من المسار الصحيح للمجلد
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: Hhhh/build/app/outputs/flutter-apk/app-release.apk
