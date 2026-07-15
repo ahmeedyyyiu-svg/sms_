@@ -1,5 +1,6 @@
 name: Build Android App
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,8 +13,11 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
-        working-directory: ./Hhhh
+        # هذا الأمر يبحث عن مجلد يحتوي على package.json ويدخل إليه تلقائياً
+        run: |
+          DIR=$(find . -name "package.json" -exec dirname {} \; | head -n 1)
+          cd $DIR
+          npm install
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -23,12 +27,16 @@ jobs:
 
       - name: Build Android APK
         run: |
-          cd Hhhh
+          DIR=$(find . -name "package.json" -exec dirname {} \; | head -n 1)
+          cd $DIR
+          # مزامنة كاباسيتور مع أندرويد
           npx cap sync android
           cd android
+          # بناء ملف APK
           ./gradlew assembleRelease
-        
+
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: Hhhh/android/app/build/outputs/apk/release/*.apk
+          # يبحث عن ملف الـ APK الناتج في أي مكان
+          path: '**/build/outputs/apk/release/*.apk'
