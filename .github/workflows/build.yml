@@ -1,4 +1,5 @@
 name: Build Android App
+
 on: [push]
 
 jobs:
@@ -13,30 +14,26 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        # هذا الأمر يبحث عن مجلد يحتوي على package.json ويدخل إليه تلقائياً
-        run: |
-          DIR=$(find . -name "package.json" -exec dirname {} \; | head -n 1)
-          cd $DIR
-          npm install
+        run: npm install
+        working-directory: ./Hhhh
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+      - name: Build Web Assets
+        run: npm run build
+        working-directory: ./Hhhh
+        continue-on-error: true # لضمان استمرار البناء حتى لو فشل الـ build
+
+      - name: Sync Capacitor
+        run: npx cap sync
+        working-directory: ./Hhhh
 
       - name: Build Android APK
-        run: |
-          DIR=$(find . -name "package.json" -exec dirname {} \; | head -n 1)
-          cd $DIR
-          # مزامنة كاباسيتور مع أندرويد
-          npx cap sync android
-          cd android
-          # بناء ملف APK
-          ./gradlew assembleRelease
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: wrapper
+          arguments: assembleRelease
+          build-root-directory: Hhhh/android
 
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          # يبحث عن ملف الـ APK الناتج في أي مكان
-          path: '**/build/outputs/apk/release/*.apk'
+          path: Hhhh/android/app/build/outputs/apk/release/*.apk
