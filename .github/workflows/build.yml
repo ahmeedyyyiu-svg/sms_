@@ -12,12 +12,12 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
-        working-directory: ./Hhhh
-
-      - name: Build Web Assets
-        run: npm run build
-        working-directory: ./Hhhh
+        # البحث عن ملف package.json والعمل من مجلده مباشرة
+        run: |
+          DIR=$(find . -name "package.json" -exec dirname {} \; | head -n 1)
+          cd $DIR
+          npm install
+          npm run build
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -27,12 +27,19 @@ jobs:
 
       - name: Build Android APK
         run: |
-          cd Hhhh
-          npx cap sync android
-          cd android
-          ./gradlew assembleRelease
+          DIR=$(find . -name "package.json" -exec dirname {} \; | head -n 1)
+          cd $DIR
+          # التأكد من وجود مجلد android والقيام بالبناء
+          if [ -d "android" ]; then
+            cd android
+            ./gradlew assembleRelease
+          else
+            echo "Android folder not found!"
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: Hhhh/android/app/build/outputs/apk/release/app-release-unsigned.apk
+          # البحث عن ملف APK في أي مكان داخل المستودع
+          path: '**/build/outputs/apk/release/*.apk'
