@@ -9,15 +9,20 @@ jobs:
         with:
           flutter-version: '3.x'
       
-      # هذا الأمر سيبحث عن ملف pubspec.yaml في أي مكان داخل المستودع
+      # هذا الأمر سيبحث عن ملف pubspec.yaml في أي مكان داخل المستودع ويبدأ البناء منه
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          find . -name "pubspec.yaml" -exec dirname {} \; | xargs -I {} sh -c 'cd {} && flutter pub get'
         
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          # العثور على المجلد الذي يحتوي على pubspec.yaml وبناء المشروع منه
+          PROJECT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+          cd $PROJECT_DIR
+          flutter build apk --release
         
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          # هذا المسار يبحث عن الملف الناتج في أي مكان داخل المستودع
+          # العثور على ملف الـ APK الناتج في أي مجلد فرعي
           path: '**/build/app/outputs/flutter-apk/app-release.apk'
