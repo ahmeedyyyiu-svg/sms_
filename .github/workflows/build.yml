@@ -16,13 +16,35 @@ jobs:
         
       - name: Build APK
         run: |
-          # العثور على المجلد الذي يحتوي على pubspec.yaml وبناء المشروع منه
-          PROJECT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
-          cd $PROJECT_DIR
+          # Find a pubspec directory that looks like a Flutter app (has android/ and lib/main.dart)
+          PROJECT_DIR=""
+          for d in $(find . -name "pubspec.yaml" -exec dirname {} \;); do
+            if [ -d "$d/android" ] && [ -f "$d/lib/main.dart" ]; then
+              PROJECT_DIR="$d"
+              break
+            fi
+          done
+
+          # Fallback: use the first pubspec directory if no app directory matched
+          if [ -z "$PROJECT_DIR" ]; then
+            PROJECT_DIR=$(find . -name "pubspec.yaml" -exec dirname {} \; | head -n 1)
+            echo "No project dir with android/lib/main.dart found; falling back to first pubspec dir: $PROJECT_DIR"
+          else
+            echo "Selected Flutter project dir: $PROJECT_DIR"
+          fi
+
+          cd "$PROJECT_DIR"
+          echo "Working directory: $(pwd)"
+          echo "Listing top-level files:"
+          ls -la
+
+          # If your entrypoint is not lib/main.dart, set --target explicitly:
+          # flutter build apk --release --target=lib/your_entry.dart
           flutter build apk --release
         
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          # العثور على ملف الـ APK الناتج في أي مجلد فرعي
-          path: '**/build/app/outputs/flutter-apk/app-release.apk'
+          path: |
+            **/build/app/outputs/flutter-apk/app-release.apk
+            **/build/app/outputs/flutter-apk/*.apk
