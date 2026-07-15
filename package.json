@@ -1,0 +1,26 @@
+{
+  "name": "sms-manager-web",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "cap:add:android": "cap add android",
+    "cap:sync": "cap sync android",
+    "cap:open:android": "cap open android"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "تطبيق ويب لإدارة جهات الاتصال وإرسال رسائل SMS بشكل متتابع، مُجهّز للتحويل إلى تطبيق أندرويد (APK) يعمل بدون إنترنت عبر Capacitor.",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "appId": "com.smsmanager.app",
+  "appName": "𝔽𝕒𝕕𝕝 SMS",
+  "webDir": "public",
+  "server": {
+    "androidScheme": "https"
+  }
+}
