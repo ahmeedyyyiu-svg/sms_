@@ -1,5 +1,4 @@
 name: Build Android App
-
 on: [push]
 
 jobs:
@@ -8,32 +7,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Debug - List Files
+        run: ls -R
+        
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
-        working-directory: ./Hhhh
-
-      - name: Build Web Assets
-        run: npm run build
-        working-directory: ./Hhhh
-        continue-on-error: true # لضمان استمرار البناء حتى لو فشل الـ build
-
-      - name: Sync Capacitor
-        run: npx cap sync
-        working-directory: ./Hhhh
-
-      - name: Build Android APK
-        uses: gradle/gradle-build-action@v3
-        with:
-          gradle-version: wrapper
-          arguments: assembleRelease
-          build-root-directory: Hhhh/android
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: Hhhh/android/app/build/outputs/apk/release/*.apk
+        run: |
+          # سيقوم بالدخول لأي مجلد يحتوي على package.json تلقائياً
+          cd $(find . -name "package.json" -exec dirname {} \; | head -n 1)
+          npm install
