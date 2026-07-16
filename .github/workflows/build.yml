@@ -6,37 +6,31 @@ on:
 
 jobs:
   build:
-    # هذا السطر يحدد أن البناء سيتم على أحدث نسخة من سيرفرات أوبونتو
     runs-on: ubuntu-latest
     steps:
-      # 1. سحب نسخة من الكود الخاص بك
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. إعداد لغة جافا المطلوبة لبناء أندرويد
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3. تثبيت بيئة عمل فلاتر على السيرفر
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.x'
 
-      # 4. تحميل المكتبات التي يحتاجها مشروعك
       - name: Get dependencies
         run: flutter pub get
 
-      # 5. أمر بناء التطبيق وتحويله إلى ملف APK
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --target lib/hayel_al_Bukhiti/main.dart
 
-      # 6. رفع ملف الـ APK الناتج ليكون جاهزاً للتحميل من GitHub
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
+
