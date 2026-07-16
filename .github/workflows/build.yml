@@ -1,37 +1,42 @@
-name: Build Android App
-on: [push]
+name: Flutter Build
+
+on:
+  push:
+    branches: [ "main" ]
 
 jobs:
   build:
+    # هذا السطر يحدد أن البناء سيتم على أحدث نسخة من سيرفرات أوبونتو
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      # 1. سحب نسخة من الكود الخاص بك
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./Hhhh
-
+      # 2. إعداد لغة جافا المطلوبة لبناء أندرويد
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
           distribution: 'temurin'
+          java-version: '17'
 
-      - name: Build Android APK
-        run: |
-          cd Hhhh
-          npx cap sync android
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
-        
+      # 3. تثبيت بيئة عمل فلاتر على السيرفر
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+
+      # 4. تحميل المكتبات التي يحتاجها مشروعك
+      - name: Get dependencies
+        run: flutter pub get
+
+      # 5. أمر بناء التطبيق وتحويله إلى ملف APK
+      - name: Build APK
+        run: flutter build apk --release
+
+      # 6. رفع ملف الـ APK الناتج ليكون جاهزاً للتحميل من GitHub
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: Hhhh/android/app/build/outputs/apk/debug/app-debug.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
